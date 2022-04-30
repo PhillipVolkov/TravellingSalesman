@@ -22,8 +22,21 @@ public class Main {
         makeGrid();
         draw();
 
-        Tour bestTour = new Tour(randomTour());
+        Tour bestTour = null;
+        for (int i = 0; i < 1000; i++) {
+            Tour currTour = geneticAlgorithm();
 
+            if (bestTour == null || currTour.getDistance() < bestTour.getDistance()) bestTour = currTour;
+
+            System.out.println("GEN " + i + " : " + currTour.getDistance());
+        }
+
+        System.out.println(bestTour);
+        panel.updateTour(bestTour.getTour());
+        frame.repaint();
+    }
+
+    public static Tour geneticAlgorithm() {
         //INIT
         Tour[] currentGen = new Tour[1000];
         for (int i = 0; i < currentGen.length; i++) currentGen[i] = new Tour(randomTour());
@@ -110,13 +123,12 @@ public class Main {
                 nextGen[i] = new Tour(offSpring);
             }
 
-            System.out.println(nextGen[0]);
             panel.updateTour(nextGen[0].getTour());
             frame.repaint();
 
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {}
+//            try {
+//                Thread.sleep(5);
+//            } catch (InterruptedException e) {}
 
             currentGen = nextGen;
 
@@ -133,6 +145,8 @@ public class Main {
                 if (i != currentGen[0].getDistance()) found = false;
             }
         }
+
+        return currentGen[0];
     }
 
     public static char[] randomTour() {

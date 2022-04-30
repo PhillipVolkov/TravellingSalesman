@@ -30,6 +30,7 @@ public class Tour implements Comparable<Tour> {
     @Override
     public int compareTo(Tour o) {
         if (this.getDistance() < o.getDistance()) return -1;
+        else if (this.getDistance() == o.getDistance()) return 0;
         else return 1;
     }
 
