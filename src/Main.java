@@ -12,6 +12,14 @@ public class Main {
     static JFrame frame = new JFrame();
     static JPanel panel = new JPanel();
 
+    static final double percentageTop = 0.05;
+    static final double percentageRandom = 0.15;
+    static final int totalPop = 250;
+    static final double mutationRate = 0.85;
+    static final int maxMutations = 1;
+
+    static final int numTrials = 1000;
+
     public static void main(String[] args) {
         frame.setContentPane(panel);
         frame.setSize(1000, 1000);
@@ -23,22 +31,28 @@ public class Main {
         draw();
 
         Tour bestTour = null;
-        for (int i = 0; i < 1000; i++) {
+        double averageDistance = 0;
+        for (int i = 0; i < numTrials; i++) {
             Tour currTour = geneticAlgorithm();
 
             if (bestTour == null || currTour.getDistance() < bestTour.getDistance()) bestTour = currTour;
 
             System.out.println("GEN " + i + " : " + currTour.getDistance());
+            averageDistance += currTour.getDistance();
         }
+        averageDistance /= numTrials;
 
-        System.out.println(bestTour);
+        System.out.println("\n*-----------------------------------------------------*");
+        System.out.println("BEST TOUR: \t\t" + bestTour);
+        System.out.println("AVERAGE TOUR: \t" + averageDistance);
+        System.out.println("*-----------------------------------------------------*");
         panel.updateTour(bestTour.getTour());
         frame.repaint();
     }
 
     public static Tour geneticAlgorithm() {
         //INIT
-        Tour[] currentGen = new Tour[1000];
+        Tour[] currentGen = new Tour[totalPop];
         for (int i = 0; i < currentGen.length; i++) currentGen[i] = new Tour(randomTour());
 
         boolean found = false;
@@ -51,12 +65,12 @@ public class Main {
             Arrays.sort(currentGen);
             Tour[] nextGen = new Tour[currentGen.length];
             //top 5
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < percentageTop*totalPop; i++) {
                 nextGen[i] = currentGen[i];
                 currentGen[i] = null;
             }
             //random
-            for (int i = 5; i < 10; i++) {
+            for (int i = (int)(percentageTop*totalPop); i < (percentageTop*totalPop)+(percentageRandom*totalPop); i++) {
                 Random rand = new Random();
 
                 int random = 0;
@@ -73,7 +87,7 @@ public class Main {
             //
             //CROSSOVER
             //
-            for (int i = 10; i < currentGen.length; i++) {
+            for (int i = (int)((percentageTop*totalPop)+(percentageRandom*totalPop)); i < currentGen.length; i++) {
                 //random two parents
                 Random rand = new Random();
 
@@ -107,18 +121,24 @@ public class Main {
                     count++;
                 }
 
-                //mutate 25% chance (switch random two)
-                if (rand.nextInt(100) < 25) {
-                    int index1 = rand.nextInt(offSpring.length);
-                    int index2 = 0;
-                    do {
-                        index2 = rand.nextInt(offSpring.length);
-                    }
-                    while(index1 == index2);
+                //mutate chance (switch random two)
+                if (Math.random() < mutationRate) {
+                    final int numMutations = rand.nextInt(maxMutations)+1;
+                    int mutationCount = 0;
 
-                    char temp = offSpring[index1];
-                    offSpring[index1] = offSpring[index2];
-                    offSpring[index2] = temp;
+                    while (mutationCount < numMutations) {
+                        int index1 = rand.nextInt(offSpring.length);
+                        int index2 = 0;
+                        do {
+                            index2 = rand.nextInt(offSpring.length);
+                        }
+                        while (index1 == index2);
+
+                        char temp = offSpring[index1];
+                        offSpring[index1] = offSpring[index2];
+                        offSpring[index2] = temp;
+                        mutationCount++;
+                    }
                 }
                 nextGen[i] = new Tour(offSpring);
             }
@@ -127,7 +147,7 @@ public class Main {
             frame.repaint();
 
 //            try {
-//                Thread.sleep(5);
+//                Thread.sleep(50);
 //            } catch (InterruptedException e) {}
 
             currentGen = nextGen;
