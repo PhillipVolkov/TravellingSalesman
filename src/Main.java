@@ -14,17 +14,19 @@ public class Main {
 
     static final double percentageTop = 0.05;
     static final double percentageRandom = 0.15;
-    static final int totalPop = 250;
+    static final int totalPop = 1000;
     static final double mutationRate = 0.85;
     static final int maxMutations = 1;
 
-    static final int numTrials = 1000;
+    static final int numTrials = 250;
+    static final int pause = 0;
 
     public static void main(String[] args) {
         frame.setContentPane(panel);
         frame.setSize(1000, 1000);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        frame.setResizable(false);
 
         read();
         makeGrid();
@@ -146,9 +148,12 @@ public class Main {
             panel.updateTour(nextGen[0].getTour());
             frame.repaint();
 
-//            try {
-//                Thread.sleep(50);
-//            } catch (InterruptedException e) {}
+            if (pause != 0) {
+                try {
+                    Thread.sleep(pause);
+                } catch (InterruptedException e) {
+                }
+            }
 
             currentGen = nextGen;
 
